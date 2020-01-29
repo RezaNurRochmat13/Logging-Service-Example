@@ -4,6 +4,7 @@ import (
 	"svc-logger-go/modules/v1/log-request/dao"
 	"svc-logger-go/modules/v1/log-request/repository"
 	"svc-logger-go/util"
+	"time"
 )
 
 type logRequestUseCaseImpl struct {
@@ -24,7 +25,11 @@ func (lu *logRequestUseCaseImpl) FindAllLogRequests() ([]dao.ListLogRequest, err
 	return findAllLogRequestsRepo, nil
 }
 
-func (lu *logRequestUseCaseImpl) SaveNewLogRequest(payload dao.CreateLogRequest) (dao.CreateLogRequest, error) {
+func (lu *logRequestUseCaseImpl) SaveNewLogRequest(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error) {
+	// Set modified date
+	payload.CreatedAt = time.Now()
+	payload.UpdatedAt = time.Now()
+
 	createNewLogRequestRepo, errorHandlerRepo := lu.LogRequestRepository.Save(payload)
 	if errorHandlerRepo != nil {
 		util.LoggerOutput("Error when saving log", "Error", errorHandlerRepo.Error())

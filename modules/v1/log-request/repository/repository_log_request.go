@@ -44,7 +44,7 @@ func (lr *logRequestRepositoryImpl) FindAll() ([]dao.ListLogRequest, error) {
 	return resultLogRequest, nil
 }
 
-func (lr *logRequestRepositoryImpl) Save(payload dao.CreateLogRequest) (dao.CreateLogRequest, error) {
+func (lr *logRequestRepositoryImpl) Save(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error) {
 	_, errorHandlerQuery := lr.Connection.Collection("http_request_log").InsertOne(cntx, payload)
 	if errorHandlerQuery != nil {
 		util.LoggerOutput("Error create new log", "Error", errorHandlerQuery.Error())
