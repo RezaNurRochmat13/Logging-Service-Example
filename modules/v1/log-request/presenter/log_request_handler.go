@@ -20,7 +20,8 @@ func NewLogRequestHandler(e *echo.Echo, logRequestUseCase usecase.UseCase) {
 	groupPath := e.Group("api/v1/")
 	groupPath.GET("log-requests", injectionHandler.GetAllLogRequestsHandler)
 	groupPath.POST("log-request", injectionHandler.CreateNewLogRequestHandler)
-	groupPath.GET("log-request/:id", injectionHandler.GetSingleLogRequests)
+	groupPath.GET("log-request/:id", injectionHandler.GetSingleLogRequestsHandler)
+	groupPath.PUT("log-request/:id", injectionHandler.UpdateLogRequestsHandler)
 }
 
 func (lh *logRequestHandlerImpl) GetAllLogRequestsHandler(ctx echo.Context) error {
@@ -51,11 +52,11 @@ func (lh *logRequestHandlerImpl) CreateNewLogRequestHandler(ctx echo.Context) er
 		util.ErrorResponseBadRequest(ctx, "Error when saving into usecase")
 	}
 
-	return util.CustomResponseMessage(ctx, http.StatusOK, "Created Log Requests", createLogRequest)
+	return util.CustomResponseMessage(ctx, http.StatusCreated, "Created Log Requests", createLogRequest)
 
 }
 
-func (lh *logRequestHandlerImpl) GetSingleLogRequests(ctx echo.Context) error {
+func (lh *logRequestHandlerImpl) GetSingleLogRequestsHandler(ctx echo.Context) error {
 	id := ctx.Param("id")
 
 	if id == "" {
@@ -70,4 +71,27 @@ func (lh *logRequestHandlerImpl) GetSingleLogRequests(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"data": findLogRequstByIdUseCase})
+}
+
+func (lh *logRequestHandlerImpl) UpdateLogRequestsHandler(ctx echo.Context) error {
+	id := ctx.Param("id")
+	updateLogRequest := new(dao.UpdateLogRequest)
+	errorHandlerBind := ctx.Bind(updateLogRequest)
+
+	if id == "" {
+		return util.ErrorResponseBadRequest(ctx, "Missing id is required")
+	}
+
+	if errorHandlerBind != nil {
+		return util.ErrorResponseBadRequest(ctx, "Error bind json value")
+	}
+
+	// Update log request
+	updateLogRequestUseCase, errorHandlerUseCase := lh.LogRequestUseCase.UpdateLogRequest(id, updateLogRequest)
+	if errorHandlerUseCase != nil {
+		util.LoggerOutput("Error when update log request", "Error", errorHandlerUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, "Error when update log request")
+	}
+
+	return util.CustomResponseMessage(ctx, http.StatusOK, "Update Log Request Success", updateLogRequestUseCase)
 }

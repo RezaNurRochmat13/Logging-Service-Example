@@ -4,6 +4,7 @@ import (
 	"context"
 	"svc-logger-go/modules/v1/log-request/dao"
 	"svc-logger-go/util"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -68,4 +69,28 @@ func (lr *logRequestRepositoryImpl) FindById(id string) (dao.DetailLogRequest, e
 	}
 
 	return detailLogRequest, nil
+}
+
+func (lr *logRequestRepositoryImpl) Update(id string, payload *dao.UpdateLogRequest) (*dao.UpdateLogRequest, error) {
+	primitiveId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": primitiveId}
+	payload.CreatedAt = time.Now()
+	payload.UpdatedAt = time.Now()
+	updateFieldLogRequest := bson.M{
+		"$set": bson.M{
+			"request_name": payload.LogHttpRequestName,
+			"status":       payload.LogHttpRequestStatus,
+			"url":          payload.LogHttpRequestUrl,
+			"created_at":   payload.CreatedAt,
+			"updated_at":   payload.UpdatedAt,
+		},
+	}
+
+	_, errorHandlerQuery := lr.Connection.Collection("http_request_log").UpdateOne(cntx, filter, updateFieldLogRequest)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when update log request", "Error", errorHandlerQuery.Error())
+		return nil, errorHandlerQuery
+	}
+
+	return payload, nil
 }

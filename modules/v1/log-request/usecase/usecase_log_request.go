@@ -47,3 +47,21 @@ func (lu *logRequestUseCaseImpl) FindByLogRequestId(id string) (dao.DetailLogReq
 
 	return findLogRequestById, nil
 }
+
+func (lu *logRequestUseCaseImpl) UpdateLogRequest(id string, payload *dao.UpdateLogRequest) (*dao.UpdateLogRequest, error) {
+	// Find log request by id first
+	_, errorHandlerRepo := lu.LogRequestRepository.FindById(id)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find log by id", "Error", errorHandlerRepo.Error())
+		return nil, errorHandlerRepo
+	}
+
+	// Update log request when id found
+	updateLogRequestRepo, errorHandlerRepos := lu.LogRequestRepository.Update(id, payload)
+	if errorHandlerRepos != nil {
+		util.LoggerOutput("Error when update log request", "Error", errorHandlerRepos.Error())
+		return nil, errorHandlerRepos
+	}
+
+	return updateLogRequestRepo, nil
+}

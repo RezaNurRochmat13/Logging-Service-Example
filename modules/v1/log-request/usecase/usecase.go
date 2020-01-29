@@ -6,4 +6,5 @@ type UseCase interface {
 	FindAllLogRequests() ([]dao.ListLogRequest, error)
 	FindByLogRequestId(id string) (dao.DetailLogRequest, error)
 	SaveNewLogRequest(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error)
+	UpdateLogRequest(id string, payload *dao.UpdateLogRequest) (*dao.UpdateLogRequest, error)
 }
