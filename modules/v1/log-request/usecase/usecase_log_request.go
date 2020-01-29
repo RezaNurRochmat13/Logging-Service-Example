@@ -37,3 +37,13 @@ func (lu *logRequestUseCaseImpl) SaveNewLogRequest(payload *dao.CreateLogRequest
 
 	return createNewLogRequestRepo, nil
 }
+
+func (lu *logRequestUseCaseImpl) FindByLogRequestId(id string) (dao.DetailLogRequest, error) {
+	findLogRequestById, errorHandlerRepo := lu.LogRequestRepository.FindById(id)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find log by id", "Error", errorHandlerRepo.Error())
+		return dao.DetailLogRequest{}, errorHandlerRepo
+	}
+
+	return findLogRequestById, nil
+}

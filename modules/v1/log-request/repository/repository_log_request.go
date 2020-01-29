@@ -6,6 +6,7 @@ import (
 	"svc-logger-go/util"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -51,4 +52,20 @@ func (lr *logRequestRepositoryImpl) Save(payload *dao.CreateLogRequest) (*dao.Cr
 	}
 
 	return payload, nil
+}
+
+func (lr *logRequestRepositoryImpl) FindById(id string) (dao.DetailLogRequest, error) {
+	var (
+		detailLogRequest dao.DetailLogRequest
+		primitiveId, _   = primitive.ObjectIDFromHex(id)
+		filter           = bson.M{"_id": primitiveId}
+	)
+
+	errorHandlerQuery := lr.Connection.Collection("http_request_log").FindOne(cntx, filter).Decode(&detailLogRequest)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when decode data detail log", "Error", errorHandlerQuery.Error())
+		return dao.DetailLogRequest{}, errorHandlerQuery
+	}
+
+	return detailLogRequest, nil
 }

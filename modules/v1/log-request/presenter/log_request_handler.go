@@ -20,6 +20,7 @@ func NewLogRequestHandler(e *echo.Echo, logRequestUseCase usecase.UseCase) {
 	groupPath := e.Group("api/v1/")
 	groupPath.GET("log-requests", injectionHandler.GetAllLogRequestsHandler)
 	groupPath.POST("log-request", injectionHandler.CreateNewLogRequestHandler)
+	groupPath.GET("log-request/:id", injectionHandler.GetSingleLogRequests)
 }
 
 func (lh *logRequestHandlerImpl) GetAllLogRequestsHandler(ctx echo.Context) error {
@@ -52,4 +53,21 @@ func (lh *logRequestHandlerImpl) CreateNewLogRequestHandler(ctx echo.Context) er
 
 	return util.CustomResponseMessage(ctx, http.StatusOK, "Created Log Requests", createLogRequest)
 
+}
+
+func (lh *logRequestHandlerImpl) GetSingleLogRequests(ctx echo.Context) error {
+	id := ctx.Param("id")
+
+	if id == "" {
+		return util.ErrorResponseBadRequest(ctx, "Missing id is required")
+	}
+
+	// Find log request by id
+	findLogRequstByIdUseCase, errorHandlerUseCase := lh.LogRequestUseCase.FindByLogRequestId(id)
+	if errorHandlerUseCase != nil {
+		util.LoggerOutput("Error when get log by id", "Error", errorHandlerUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, "Error when find log by id")
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"data": findLogRequstByIdUseCase})
 }

@@ -4,5 +4,6 @@ import "svc-logger-go/modules/v1/log-request/dao"
 
 type UseCase interface {
 	FindAllLogRequests() ([]dao.ListLogRequest, error)
+	FindByLogRequestId(id string) (dao.DetailLogRequest, error)
 	SaveNewLogRequest(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error)
 }
