@@ -31,9 +31,16 @@ func (lh *logRequestHandlerImpl) GetAllLogRequestsHandler(ctx echo.Context) erro
 		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCase.Error())
 	}
 
+	countAllLogRequest, errorHandlerUsecaseCount := lh.LogRequestUseCase.CountAllLogRequest()
+	if errorHandlerUsecaseCount != nil {
+		util.LoggerOutput("Error when count log request", "Error", errorHandlerUsecaseCount.Error())
+		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCase.Error())
+	}
+
 	return ctx.JSON(http.StatusOK, echo.Map{
 		"count": len(findAllLogRequestUseCase),
 		"data":  findAllLogRequestUseCase,
+		"total": countAllLogRequest,
 	})
 }
 

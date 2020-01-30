@@ -46,6 +46,15 @@ func (lr *logRequestRepositoryImpl) FindAll() ([]dao.ListLogRequest, error) {
 	return resultLogRequest, nil
 }
 
+func (lr *logRequestRepositoryImpl) Count() (int64, error) {
+	countAllLogRequest, errorHandlerQuery := lr.Connection.Collection("http_request_log").CountDocuments(cntx, bson.M{})
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when count log request", "Error", errorHandlerQuery.Error())
+	}
+
+	return countAllLogRequest, nil
+}
+
 func (lr *logRequestRepositoryImpl) Save(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error) {
 	_, errorHandlerQuery := lr.Connection.Collection("http_request_log").InsertOne(cntx, payload)
 	if errorHandlerQuery != nil {

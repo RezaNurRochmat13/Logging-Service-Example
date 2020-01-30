@@ -26,6 +26,16 @@ func (lu *logRequestUseCaseImpl) FindAllLogRequests() ([]dao.ListLogRequest, err
 	return findAllLogRequestsRepo, nil
 }
 
+func (lu *logRequestUseCaseImpl) CountAllLogRequest() (int64, error) {
+	countAllLogRequestRepo, errorHandlerQuery := lu.LogRequestRepository.Count()
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when count all log request", "Error", errorHandlerQuery.Error())
+		return 0, errorHandlerQuery
+	}
+
+	return countAllLogRequestRepo, nil
+}
+
 func (lu *logRequestUseCaseImpl) SaveNewLogRequest(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error) {
 	// Set modified date
 	payload.CreatedAt = time.Now()
