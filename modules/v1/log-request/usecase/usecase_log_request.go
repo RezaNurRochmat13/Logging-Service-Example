@@ -95,3 +95,14 @@ func (lu *logRequestUseCaseImpl) DeleteLogRequest(id string) (dao.DetailLogReque
 
 	return findByLogRequestId, nil
 }
+
+func (lu *logRequestUseCaseImpl) FindLogRequestByRequestName(name string) (dao.DetailLogRequest, error) {
+	findByRequestNameRepo, errorHandlerRepo := lu.LogRequestRepository.FindByName(name)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find log request name", "Error", errorHandlerRepo.Error())
+		errorFindNotFound := fmt.Errorf("Name Log Request Not found")
+		return dao.DetailLogRequest{}, errorFindNotFound
+	}
+
+	return findByRequestNameRepo, nil
+}

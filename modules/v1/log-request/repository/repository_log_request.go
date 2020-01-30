@@ -116,3 +116,16 @@ func (lr *logRequestRepositoryImpl) Delete(id string) error {
 
 	return nil
 }
+
+func (lr *logRequestRepositoryImpl) FindByName(name string) (dao.DetailLogRequest, error) {
+	filter := bson.M{"request_name": name}
+	var detailLogByName dao.DetailLogRequest
+
+	errorHandlerQuery := lr.Connection.Collection("http_request_log").FindOne(cntx, filter).Decode(&detailLogByName)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when decode data detail log by name", "Error", errorHandlerQuery.Error())
+		return dao.DetailLogRequest{}, errorHandlerQuery
+	}
+
+	return detailLogByName, nil
+}

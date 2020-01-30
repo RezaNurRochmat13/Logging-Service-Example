@@ -23,6 +23,7 @@ func NewLogRequestHandler(e *echo.Echo, logRequestUseCase usecase.UseCase) {
 	groupPath.GET("log-request/:id", injectionHandler.GetSingleLogRequestsHandler)
 	groupPath.PUT("log-request/:id", injectionHandler.UpdateLogRequestsHandler)
 	groupPath.DELETE("log-request/:id", injectionHandler.DeleteLogRequestHandler)
+	groupPath.GET("log-request-search/:name", injectionHandler.GetLogRequestByRequestNameHandler)
 }
 
 func (lh *logRequestHandlerImpl) GetAllLogRequestsHandler(ctx echo.Context) error {
@@ -119,4 +120,17 @@ func (lh *logRequestHandlerImpl) DeleteLogRequestHandler(ctx echo.Context) error
 	}
 
 	return util.CustomResponseMessage(ctx, http.StatusOK, "Delete Log Request Success", deleteLogRequestUseCase)
+}
+
+func (lh *logRequestHandlerImpl) GetLogRequestByRequestNameHandler(ctx echo.Context) error {
+	name := ctx.Param("name")
+
+	// Find log request by name
+	findLogRequestByName, errorHandlerUseCase := lh.LogRequestUseCase.FindLogRequestByRequestName(name)
+	if errorHandlerUseCase != nil {
+		util.LoggerOutput("Error when find log by name", "Error", errorHandlerUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCase.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"data": findLogRequestByName})
 }
