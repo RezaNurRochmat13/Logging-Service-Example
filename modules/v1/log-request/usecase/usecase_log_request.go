@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"svc-logger-go/modules/v1/log-request/dao"
 	"svc-logger-go/modules/v1/log-request/repository"
 	"svc-logger-go/util"
@@ -64,4 +65,23 @@ func (lu *logRequestUseCaseImpl) UpdateLogRequest(id string, payload *dao.Update
 	}
 
 	return updateLogRequestRepo, nil
+}
+
+func (lu *logRequestUseCaseImpl) DeleteLogRequest(id string) (dao.DetailLogRequest, error) {
+	// Find log request by id first
+	findByLogRequestId, errorHandlerRepo := lu.LogRequestRepository.FindById(id)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find log by id", "Error", errorHandlerRepo.Error())
+		errorFindNotFound := fmt.Errorf("ID Log Request Not found")
+		return dao.DetailLogRequest{}, errorFindNotFound
+	}
+
+	// Delete log request when id found
+	errorHandlerDeleteLogRequest := lu.LogRequestRepository.Delete(id)
+	if errorHandlerDeleteLogRequest != nil {
+		util.LoggerOutput("Error when delete log request", "Error", errorHandlerDeleteLogRequest.Error())
+		return dao.DetailLogRequest{}, errorHandlerDeleteLogRequest
+	}
+
+	return findByLogRequestId, nil
 }

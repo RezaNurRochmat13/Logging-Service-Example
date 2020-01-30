@@ -7,4 +7,5 @@ type Repository interface {
 	FindById(id string) (dao.DetailLogRequest, error)
 	Save(payload *dao.CreateLogRequest) (*dao.CreateLogRequest, error)
 	Update(id string, payload *dao.UpdateLogRequest) (*dao.UpdateLogRequest, error)
+	Delete(id string) error
 }

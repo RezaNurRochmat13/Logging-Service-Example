@@ -94,3 +94,16 @@ func (lr *logRequestRepositoryImpl) Update(id string, payload *dao.UpdateLogRequ
 
 	return payload, nil
 }
+
+func (lr *logRequestRepositoryImpl) Delete(id string) error {
+	primitiveId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": primitiveId}
+
+	_, errorHandlerQuery := lr.Connection.Collection("http_request_log").DeleteOne(cntx, filter)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when delete log request ", "Error", errorHandlerQuery.Error())
+		return errorHandlerQuery
+	}
+
+	return nil
+}
