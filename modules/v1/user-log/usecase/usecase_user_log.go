@@ -27,3 +27,23 @@ func (us *userLogActivityUseCaseImpl) CreateNewUserActivityLog(payload *dao.Crea
 
 	return createNewUserLog, nil
 }
+
+func (us *userLogActivityUseCaseImpl) FindAllUserActivityLog() ([]dao.ListUserActivityLog, error) {
+	findAllUserActivityLog, errorHandlerRepo := us.UserLogActivityRepository.FindAll()
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when get find all user log", "Error", errorHandlerRepo.Error())
+		return nil, errorHandlerRepo
+	}
+
+	return findAllUserActivityLog, nil
+}
+
+func (us *userLogActivityUseCaseImpl) CountAllUserActivityLog() (int64, error) {
+	countAllUserActivityLog, errorHandlerRepo := us.UserLogActivityRepository.Count()
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when count all user log", "Error", errorHandlerRepo.Error())
+		return 0, errorHandlerRepo
+	}
+
+	return countAllUserActivityLog, nil
+}

@@ -17,6 +17,7 @@ func NewUserLogActivityHandler(e *echo.Echo, userLogActivityUseCase usecase.UseC
 	injectionHandler := &userLogActivityHandlerImpl{UserLogActivityUseCase: userLogActivityUseCase}
 	groupPath := e.Group("api/v1/")
 	groupPath.POST("user-log", injectionHandler.CreateNewUserLogActivityHandler)
+	groupPath.GET("user-logs", injectionHandler.GetAllUserActivityLog)
 }
 
 func (uh *userLogActivityHandlerImpl) CreateNewUserLogActivityHandler(ctx echo.Context) error {
@@ -35,4 +36,24 @@ func (uh *userLogActivityHandlerImpl) CreateNewUserLogActivityHandler(ctx echo.C
 	}
 
 	return util.CustomResponseMessage(ctx, http.StatusCreated, "Sukses create new user log", saveCreateNewUserLogActivity)
+}
+
+func (uh *userLogActivityHandlerImpl) GetAllUserActivityLog(ctx echo.Context) error {
+	findAllUserActivityLog, errorHandlerUseCase := uh.UserLogActivityUseCase.FindAllUserActivityLog()
+	if errorHandlerUseCase != nil {
+		util.LoggerOutput("Error when find all user", "Error", errorHandlerUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, "Error when find all user activity")
+	}
+
+	countAllUserActivityLog, errorHandlerCountUseCase := uh.UserLogActivityUseCase.CountAllUserActivityLog()
+	if errorHandlerCountUseCase != nil {
+		util.LoggerOutput("Error when count all user", "Error", errorHandlerCountUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, "Error when count all user. More info view logs")
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{
+		"count": len(findAllUserActivityLog),
+		"total": countAllUserActivityLog,
+		"data":  findAllUserActivityLog,
+	})
 }
