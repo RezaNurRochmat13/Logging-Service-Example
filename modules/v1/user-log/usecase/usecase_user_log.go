@@ -47,3 +47,13 @@ func (us *userLogActivityUseCaseImpl) CountAllUserActivityLog() (int64, error) {
 
 	return countAllUserActivityLog, nil
 }
+
+func (us *userLogActivityUseCaseImpl) FindByUserActivityByID(id string) (dao.DetailUserActivityLog, error) {
+	findUserActivityByID, errorHandlerRepo := us.UserLogActivityRepository.FindByID(id)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find user activity by id", "Error", errorHandlerRepo.Error())
+		return dao.DetailUserActivityLog{}, errorHandlerRepo
+	}
+
+	return findUserActivityByID, nil
+}

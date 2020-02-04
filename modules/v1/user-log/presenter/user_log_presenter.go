@@ -18,6 +18,7 @@ func NewUserLogActivityHandler(e *echo.Echo, userLogActivityUseCase usecase.UseC
 	groupPath := e.Group("api/v1/")
 	groupPath.POST("user-log", injectionHandler.CreateNewUserLogActivityHandler)
 	groupPath.GET("user-logs", injectionHandler.GetAllUserActivityLog)
+	groupPath.GET("user-log/:id", injectionHandler.GetSingleUserActivityHandler)
 }
 
 func (uh *userLogActivityHandlerImpl) CreateNewUserLogActivityHandler(ctx echo.Context) error {
@@ -56,4 +57,16 @@ func (uh *userLogActivityHandlerImpl) GetAllUserActivityLog(ctx echo.Context) er
 		"total": countAllUserActivityLog,
 		"data":  findAllUserActivityLog,
 	})
+}
+
+func (uh *userLogActivityHandlerImpl) GetSingleUserActivityHandler(ctx echo.Context) error {
+	id := ctx.Param("id")
+
+	findUserLogActivityById, errorHandlerUseCaseFindById := uh.UserLogActivityUseCase.FindByUserActivityByID(id)
+	if errorHandlerUseCaseFindById != nil {
+		util.LoggerOutput("Error when get find user activity by id", "Error", errorHandlerUseCaseFindById.Error())
+		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCaseFindById.Error())
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"data": findUserLogActivityById})
 }

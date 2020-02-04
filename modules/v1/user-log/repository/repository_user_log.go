@@ -2,10 +2,12 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"svc-logger-go/modules/v1/user-log/dao"
 	"svc-logger-go/util"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -61,4 +63,19 @@ func (ur *userLogActivityRepoImpl) Count() (int64, error) {
 	}
 
 	return countAllUserActivityLog, nil
+}
+
+func (ur *userLogActivityRepoImpl) FindByID(id string) (dao.DetailUserActivityLog, error) {
+	primitiveID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": primitiveID}
+	var daoUserActivityLog dao.DetailUserActivityLog
+
+	errorHandlerQuery := ur.Connection.Collection("user_log").FindOne(cntx, filter).Decode(&daoUserActivityLog)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when find log user by id", "Error", errorHandlerQuery.Error())
+		errNotFound := fmt.Errorf("User Log Activity Not Found with id : %s", id)
+		return dao.DetailUserActivityLog{}, errNotFound
+	}
+
+	return daoUserActivityLog, nil
 }
