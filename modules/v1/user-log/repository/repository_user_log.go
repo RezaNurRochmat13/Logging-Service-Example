@@ -79,3 +79,27 @@ func (ur *userLogActivityRepoImpl) FindByID(id string) (dao.DetailUserActivityLo
 
 	return daoUserActivityLog, nil
 }
+
+func (ur *userLogActivityRepoImpl) Update(id string, payload *dao.UpdateUserActivityLog) (*dao.UpdateUserActivityLog, error) {
+	primitiveID, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.M{"_id": primitiveID}
+	updatePayload := bson.M{
+		"$set": bson.M{
+			"log_activity_user_name":      payload.LogActivityUserName,
+			"log_activity_user_action":    payload.LogActivityUserAction,
+			"log_activity_user_authority": payload.LogActivityUserAuthority,
+			"log_activity_user_email":     payload.LogActivityUserEmail,
+			"log_activity_user_url_app":   payload.LogActivityUserURLAppName,
+			"created_at":                  payload.CreatedAt,
+			"updated_at":                  payload.UpdatedAt,
+		},
+	}
+
+	_, errorHandlerQueryUpdate := ur.Connection.Collection("user_log").UpdateOne(cntx, filter, updatePayload)
+	if errorHandlerQueryUpdate != nil {
+		util.LoggerOutput("Error when update user activity", "Error", errorHandlerQueryUpdate.Error())
+		return nil, errorHandlerQueryUpdate
+	}
+
+	return payload, nil
+}

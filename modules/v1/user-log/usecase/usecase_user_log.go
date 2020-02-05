@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"svc-logger-go/modules/v1/user-log/dao"
 	"svc-logger-go/modules/v1/user-log/repository"
 	"svc-logger-go/util"
@@ -56,4 +57,23 @@ func (us *userLogActivityUseCaseImpl) FindByUserActivityByID(id string) (dao.Det
 	}
 
 	return findUserActivityByID, nil
+}
+
+func (us *userLogActivityUseCaseImpl) UpdateUserActivityLog(id string, payload *dao.UpdateUserActivityLog) (*dao.UpdateUserActivityLog, error) {
+	_, errorHandlerRepoUserActivityByID := us.UserLogActivityRepository.FindByID(id)
+	if errorHandlerRepoUserActivityByID != nil {
+		util.LoggerOutput("Error when find by id user activity", "Error", errorHandlerRepoUserActivityByID.Error())
+		errorNotFound := fmt.Errorf("User activity not found with id : %s", id)
+		return nil, errorNotFound
+	}
+
+	payload.CreatedAt = time.Now()
+	payload.UpdatedAt = time.Now()
+	updateUserActivity, errorHandlerRepoUpdateUserActivity := us.UserLogActivityRepository.Update(id, payload)
+	if errorHandlerRepoUpdateUserActivity != nil {
+		util.LoggerOutput("Error when update user activity", "Error", errorHandlerRepoUpdateUserActivity.Error())
+		return nil, errorHandlerRepoUpdateUserActivity
+	}
+
+	return updateUserActivity, nil
 }

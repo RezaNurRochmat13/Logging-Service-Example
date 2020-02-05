@@ -19,6 +19,7 @@ func NewUserLogActivityHandler(e *echo.Echo, userLogActivityUseCase usecase.UseC
 	groupPath.POST("user-log", injectionHandler.CreateNewUserLogActivityHandler)
 	groupPath.GET("user-logs", injectionHandler.GetAllUserActivityLog)
 	groupPath.GET("user-log/:id", injectionHandler.GetSingleUserActivityHandler)
+	groupPath.PUT("user-log/:id", injectionHandler.UpdateUserActivityLogHandler)
 }
 
 func (uh *userLogActivityHandlerImpl) CreateNewUserLogActivityHandler(ctx echo.Context) error {
@@ -69,4 +70,23 @@ func (uh *userLogActivityHandlerImpl) GetSingleUserActivityHandler(ctx echo.Cont
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"data": findUserLogActivityById})
+}
+
+func (uh *userLogActivityHandlerImpl) UpdateUserActivityLogHandler(ctx echo.Context) error {
+	id := ctx.Param("id")
+	updatePayloadUserActivity := new(dao.UpdateUserActivityLog)
+
+	errorHandlerBind := ctx.Bind(updatePayloadUserActivity)
+	if errorHandlerBind != nil {
+		util.LoggerOutput("Error when bind json", "Error", errorHandlerBind.Error())
+		return util.ErrorResponseBadRequest(ctx, "Error bind json")
+	}
+
+	updateUserActivityUseCase, errorHandlerUseCase := uh.UserLogActivityUseCase.UpdateUserActivityLog(id, updatePayloadUserActivity)
+	if errorHandlerUseCase != nil {
+		util.LoggerOutput("Error when update user activity", "Error", errorHandlerUseCase.Error())
+		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCase.Error())
+	}
+
+	return util.CustomResponseMessage(ctx, http.StatusOK, "Update user activity sucessfully", updateUserActivityUseCase)
 }
