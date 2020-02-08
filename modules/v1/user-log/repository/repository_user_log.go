@@ -103,3 +103,18 @@ func (ur *userLogActivityRepoImpl) Update(id string, payload *dao.UpdateUserActi
 
 	return payload, nil
 }
+
+func (ur *userLogActivityRepoImpl) FindByName(name string) (*dao.DetailUserActivityLog, error) {
+	var detailUserActivityByName *dao.DetailUserActivityLog
+	filter := bson.M{
+		"log_activity_user_name": name,
+	}
+
+	errorHandlerQuery := ur.Connection.Collection("user_log").FindOne(cntx, filter).Decode(&detailUserActivityByName)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when decode user activity by name", "Error RepoUserLog-FindByName", errorHandlerQuery.Error())
+		return nil, errorHandlerQuery
+	}
+
+	return detailUserActivityByName, nil
+}

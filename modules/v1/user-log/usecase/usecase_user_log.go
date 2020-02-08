@@ -77,3 +77,14 @@ func (us *userLogActivityUseCaseImpl) UpdateUserActivityLog(id string, payload *
 
 	return updateUserActivity, nil
 }
+
+func (us *userLogActivityUseCaseImpl) FindUserActivityLogByName(name string) (*dao.DetailUserActivityLog, error) {
+	findUserActivityByNameRepo, errorHandlerRepo := us.UserLogActivityRepository.FindByName(name)
+	if errorHandlerRepo != nil {
+		util.LoggerOutput("Error when find user activity by name", "Error UseCase.FindUserActivityLogByName", errorHandlerRepo.Error())
+		errorNotFoundUserActivityName := fmt.Errorf("User activity not found with name : %s", name)
+		return nil, errorNotFoundUserActivityName
+	}
+
+	return findUserActivityByNameRepo, nil
+}

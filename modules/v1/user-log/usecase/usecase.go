@@ -8,4 +8,5 @@ type UseCase interface {
 	CountAllUserActivityLog() (int64, error)
 	FindByUserActivityByID(id string) (dao.DetailUserActivityLog, error)
 	UpdateUserActivityLog(id string, payload *dao.UpdateUserActivityLog) (*dao.UpdateUserActivityLog, error)
+	FindUserActivityLogByName(name string) (*dao.DetailUserActivityLog, error)
 }
