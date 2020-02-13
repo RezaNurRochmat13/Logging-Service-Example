@@ -8,5 +8,5 @@ type Repository interface {
 	Count() (int64, error)
 	FindByID(id string) (dao.DetailUserActivityLog, error)
 	Update(id string, payload *dao.UpdateUserActivityLog) (*dao.UpdateUserActivityLog, error)
-	FindByName(name string) (*dao.DetailUserActivityLog, error)
+	SearchUser(name string) ([]dao.ListUserActivityLog, error)
 }

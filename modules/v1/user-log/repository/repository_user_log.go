@@ -118,3 +118,31 @@ func (ur *userLogActivityRepoImpl) FindByName(name string) (*dao.DetailUserActiv
 
 	return detailUserActivityByName, nil
 }
+
+func (ur *userLogActivityRepoImpl) SearchUser(name string) ([]dao.ListUserActivityLog, error) {
+	var (
+		daoUserActivityLog    dao.ListUserActivityLog
+		resultUserActivityLog []dao.ListUserActivityLog
+		filter                = bson.M{
+			"log_activity_user_name": name,
+		}
+	)
+
+	queryFilterUserActivityAction, errorHandlerQuery := ur.Connection.Collection("user_log").Find(cntx, filter)
+	if errorHandlerQuery != nil {
+		util.LoggerOutput("Error when filter user activity by action", "Error Repo", errorHandlerQuery.Error())
+		return nil, errorHandlerQuery
+	}
+
+	for queryFilterUserActivityAction.Next(cntx) {
+		errroHandlerDecode := queryFilterUserActivityAction.Decode(&daoUserActivityLog)
+		if errroHandlerDecode != nil {
+			util.LoggerOutput("Error when decode data", "Error Repo", errroHandlerDecode.Error())
+			return nil, errroHandlerDecode
+		}
+
+		resultUserActivityLog = append(resultUserActivityLog, daoUserActivityLog)
+	}
+
+	return resultUserActivityLog, nil
+}

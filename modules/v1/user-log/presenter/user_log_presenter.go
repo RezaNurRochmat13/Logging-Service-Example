@@ -20,7 +20,7 @@ func NewUserLogActivityHandler(e *echo.Echo, userLogActivityUseCase usecase.UseC
 	groupPath.GET("user-logs", injectionHandler.GetAllUserActivityLog)
 	groupPath.GET("user-log/:id", injectionHandler.GetSingleUserActivityHandler)
 	groupPath.PUT("user-log/:id", injectionHandler.UpdateUserActivityLogHandler)
-	groupPath.GET("user-log-search", injectionHandler.GetUserActivityLogByNameHandler)
+	groupPath.GET("user-log-search", injectionHandler.SearchUserActivityLogHandler)
 }
 
 func (uh *userLogActivityHandlerImpl) CreateNewUserLogActivityHandler(ctx echo.Context) error {
@@ -92,14 +92,14 @@ func (uh *userLogActivityHandlerImpl) UpdateUserActivityLogHandler(ctx echo.Cont
 	return util.CustomResponseMessage(ctx, http.StatusOK, "Update user activity sucessfully", updateUserActivityUseCase)
 }
 
-func (uh *userLogActivityHandlerImpl) GetUserActivityLogByNameHandler(ctx echo.Context) error {
+func (uh *userLogActivityHandlerImpl) SearchUserActivityLogHandler(ctx echo.Context) error {
 	name := ctx.QueryParam("name")
 
-	findUserActivityByNameUseCase, errorHandlerUseCase := uh.UserLogActivityUseCase.FindUserActivityLogByName(name)
-	if errorHandlerUseCase != nil {
-		util.LoggerOutput("Error when find user activity by name", "Error presenter.GetUserActivityLogByNameHandler", errorHandlerUseCase.Error())
-		return util.ErrorResponseBadRequest(ctx, errorHandlerUseCase.Error())
+	searchUserLogActivity, errorHandlerRepoFindByUserAction := uh.UserLogActivityUseCase.SearchUserActivityLog(name)
+	if errorHandlerRepoFindByUserAction != nil {
+		util.LoggerOutput("Error when find user activity by action", "Error", errorHandlerRepoFindByUserAction.Error())
+		return util.ErrorResponseBadRequest(ctx, errorHandlerRepoFindByUserAction.Error())
 	}
 
-	return ctx.JSON(http.StatusOK, echo.Map{"data": findUserActivityByNameUseCase})
+	return ctx.JSON(http.StatusOK, echo.Map{"data": searchUserLogActivity})
 }
